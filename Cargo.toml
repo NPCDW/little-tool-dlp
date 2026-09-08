@@ -1,0 +1,14 @@
+[package]
+name = "video-downloader"
+version = "0.1.0"
+edition = "2021"
+description = "视频下载 yt-dlp 工具 (Rust 版，配置文件驱动)"
+
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+serde_yaml = "0.9"
+colored = "3.1.1"
+dialoguer = "0.12.0"
+
+[profile.release]
+strip = true
