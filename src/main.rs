@@ -50,6 +50,18 @@ enum YtDlpLoc {
 }
 
 fn main() -> ExitCode {
+    // 捕获 panic，避免双击运行时窗口在错误信息一闪而过的情况下直接关闭
+    let code = std::panic::catch_unwind(run).unwrap_or_else(|_| {
+        eprintln!("\n{} 程序内部错误，已终止运行。", "错误:".red().bold());
+        ExitCode::FAILURE
+    });
+
+    pause_on_exit();
+    code
+}
+
+/// 真正的程序主流程
+fn run() -> ExitCode {
     // 将程序所在目录作为工作目录基准
     let exe_dir = program_dir();
     let config_path = exe_dir.join(CONFIG_FILE);
@@ -153,6 +165,26 @@ fn main() -> ExitCode {
 
     ExitCode::SUCCESS
 }
+
+/// 退出前暂停，方便双击运行时看清结果：
+/// - 按回车结束程序
+/// - 或直接点击窗口右上角关闭结束
+/// 仅在 Windows 且 stdin 为交互终端时生效，
+/// 管道 / 重定向 / 非交互环境（如 CI）不会暂停。
+#[cfg(windows)]
+fn pause_on_exit() {
+    if !io::stdin().is_terminal() {
+        return;
+    }
+    println!();
+    print!("{}", "按 回车键 退出，也可直接关闭本窗口...".bright_black());
+    let _ = io::stdout().flush();
+    let mut s = String::new();
+    let _ = io::stdin().read_line(&mut s);
+}
+
+#[cfg(not(windows))]
+fn pause_on_exit() {}
 
 /// 程序所在目录
 fn program_dir() -> PathBuf {
