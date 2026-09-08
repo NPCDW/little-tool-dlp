@@ -1,7 +1,7 @@
 [package]
 name = "video-downloader"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 description = "视频下载 yt-dlp 工具 (Rust 版，配置文件驱动)"
 
 [dependencies]
